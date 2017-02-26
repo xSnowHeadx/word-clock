@@ -114,6 +114,16 @@ Im Moment unterstützt word-clock folgende Komponententypen mit ihren Einstellung
 - `name`: Der Instanzenname der Quelle, unter welchem sie mit den eingestellten Parametern in den Programmen verwendet werden kann.  
 - `millis`: Die Zeit in Millisekunden zwischen dem zyklischen Starts der Prozessorkomponente.
 
+**word-processor**: Wandelt die aktuelle Uhrzeit in die dazugehörige Wortfolge um	
+
+- `name`: Der Instanzenname des Prozessors, unter welchem er mit den eingestellten Parametern in den Programmen verwendet werden kann.  
+- `mode`: legt fest, ob die Zeitdarstellung nach osteutscher (z.B. "viertel sieben") oder westdeutscher (z.B. "viertel nach sechs") Gewohnheit erfolgen soll 
+- `precise`: legt fest, ob die Zusätze "genau" (1), "etwa" (2) oder beide (3) zur genaueren Zeitanzeige verwendet werden sollen
+- `trailer`: ist "trailer" gleich 1, wird das Word "Uhr" an die Zeitanzeige angehängt
+- `red`: Legt den Rotanteil in der Wortanzeige in Prozent der Gesamthelligkeit fest. Gültig sind Werte von 0..100.  
+- `green`: Legt den Grünanteil in der Wortanzeige in Prozent der Gesamthelligkeit fest. Gültig sind Werte von 0..100.  
+- `blue`: Legt den Blauanteil in der Wortanzeige in Prozent der Gesamthelligkeit fest. Gültig sind Werte von 0..100.  
+
 **audio-processor**: Verarbeitet die erfaßten Audio-Daten mittels FFT und wandelt sie in Farben um.
 
 - `name`: Der Instanzenname des Prozessors, unter welchem er mit den eingestellten Parametern in den Programmen verwendet werden kann.  
