@@ -209,7 +209,7 @@ static int wordclock_ledstripe_set_output_to_rgb(struct wordclock_sink_component
 			else
 			{
 				ledstripe->brightness = r;
-				wordclock_log(wordclock_log_info, LOGNAME "brightness was set to %d%%", r);
+				wordclock_log(wordclock_log_info, LOGNAME "brightness was set to %d%%\n", r);
 				ret = 0;
 			}
 			break;
@@ -224,7 +224,7 @@ static int wordclock_ledstripe_set_output_to_rgb(struct wordclock_sink_component
 			else
 			{
 				ledstripe->intensity[idx] = r / 100;
-				wordclock_log(wordclock_log_info, LOGNAME "intensity-%s was set to %d%%", scol[idx],
+				wordclock_log(wordclock_log_info, LOGNAME "intensity-%s was set to %d%%\n", scol[idx],
 						ledstripe->intensity[idx]);
 				ret = 0;
 			}

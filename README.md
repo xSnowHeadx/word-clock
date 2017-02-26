@@ -14,10 +14,10 @@ Neben dem Grundgerüst von [Georg Kaindl](https://github.com/gkaindl/ambi-tv) und
 Für den Aufbau des eigenständigen Ambilights werden folgende Komponenten benötigt:
 
 - Raspberry Pi (beliebige Version mit aktuellem [Raspbian-Image](http://downloads.raspberrypi.org/raspbian_latest)) mit [Kühlkörpern](http://www.amazon.de/gp/product/B00BB8ZB4U)
-- [WS2811 RGB LED Strip](http://www.ebay.de/itm/WS2812B-LED-Stripe-4m-RGB-60-LEDs-m-Klebestreifen-WS2811-WS2812-/251901768682?pt=LH_DefaultDomain_77&hash=item3aa683f3ea): Die Gehäuseteile sind für die verwendung dieser LED ausgelegt. Man benötigt einen Pegelwandler von den 3,3V des Raspi auf die 5V der LED. 
+- [WS2811 RGB LED Strip](http://www.ebay.de/itm/WS2812B-LED-Stripe-4m-RGB-60-LEDs-m-Klebestreifen-WS2811-WS2812-/251901768682?pt=LH_DefaultDomain_77&hash=item3aa683f3ea): Die Gehäuseteile sind für die Verwendung dieser LED ausgelegt. Man benötigt einen Pegelwandler von den 3,3V des Raspi auf die 5V der LED. 
 - alternativ [LPD8806 RGB LED Strip](http://www.watterott.com/de/Digital-Addressable-RGB-LED): Dann muß aber ein eigenes Gehäuse verwendet werden.
 - [Audio-Grabber](https://www.amazon.de/dp/B01LW8CMN4/ref=cm_sw_em_r_mt_dp_OKRSybBAA919M): Nur erforderlich, wenn man die Audiofunktionen nutzen möchte.
-- [1 5V-Netzteil](http://www.amazon.de/gp/product/B004S7U4IO)
+- 1 [5V-Netzteil](http://www.amazon.de/gp/product/B004S7U4IO)
 - Tipp-Taster: Für diejenigen, die die Umschaltung nicht über das Web-Interface vornehmen.
 - diverse Kabel, Lötwerkzeug
 
@@ -75,7 +75,7 @@ Im Repository liegt eine Beispiel-Konfigurationsdatei mit einer Zusammenstellung
 
 word-clock verwendet eine Konfigurationsdatei für die Definition und Parametrierung von Komponenten und Programmen. Es können sogenannte **components** (also Funktionen) erstellt und parametriert sowie **programs** (also Programme), welche eine Zusammenstellung von Eingangs-, Verarbeitungs- und Ausgabefunktionen darstellen, festgelegt werden.
 
-Eine Komponente ist ein Teil des Datenflusses in word-clock. Es gibt Quellen (Video-Grabber, Audio-Grabber oder einfache Binärdatengeneratoren), Prozessoren (Verarbeitungskomponenten, welche die Quelldaten auswerten) und Senken (geben die bearbeiteten Daten an den LED-String weiter). Die gleiche Komponente kann beliebig oft bei feststehendem Komponenten-Namen unter verschiedenen Instanzen-Namen und mit jeweils unterschiedlichen Parametern angelegt werden. Eine Komponentendefinition (zwei Instanzen der gleichen Komponente mit unterschiedlichen Parametern) sieht so aus:
+Eine Komponente ist ein Teil des Datenflusses in word-clock. Es gibt Quellen (Audio-Grabber oder einfache Binärdatengeneratoren), Prozessoren (Verarbeitungskomponenten, welche die Quelldaten auswerten) und Senken (geben die bearbeiteten Daten an den LED-String weiter). Die gleiche Komponente kann beliebig oft bei feststehendem Komponenten-Namen unter verschiedenen Instanzen-Namen und mit jeweils unterschiedlichen Parametern angelegt werden. Eine Komponentendefinition (zwei Instanzen der gleichen Komponente mit unterschiedlichen Parametern) sieht so aus:
 
     component_name {
         name            instance_nameA

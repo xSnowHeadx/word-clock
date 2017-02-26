@@ -151,6 +151,7 @@ static int
 wordclock_processor_component_activate(struct wordclock_processor_component* component)
 {
    component->active = 1;
+   component->first_run = 1;
    return 0;
 }
 

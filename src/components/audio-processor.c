@@ -302,6 +302,14 @@ static int wordclock_audio_processor_update_sink(struct wordclock_processor_comp
 
 	if (sink->f_num_outputs && sink->f_set_output_to_rgb && sink->f_map_output_to_point)
 	{
+		if(processor->first_run)
+		{
+			sink->f_set_output_to_rgb(sink, wordclock_special_sinkcommand_intensity_red, 10000, 0, 0);
+			sink->f_set_output_to_rgb(sink, wordclock_special_sinkcommand_intensity_green, 10000, 0, 0);
+			sink->f_set_output_to_rgb(sink, wordclock_special_sinkcommand_intensity_blue, 10000, 0, 0);
+			processor->first_run = 0;
+		}
+
 		n_out = sink->f_num_outputs(sink);
 
 		dr = dg = db = 0.0;

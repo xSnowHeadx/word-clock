@@ -51,6 +51,7 @@ struct wordclock_processor_component {
 
    void*    priv;
    int      active;
+   int 		first_run;
 
    void(*f_print_configuration)(struct wordclock_processor_component*);
    

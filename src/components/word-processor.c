@@ -249,6 +249,14 @@ static int wordclock_word_processor_update_sink(struct wordclock_processor_compo
 
 	if (sink->f_num_outputs && sink->f_set_output_to_rgb)
 	{
+		if(processor->first_run)
+		{
+			sink->f_set_output_to_rgb(sink, wordclock_special_sinkcommand_intensity_red, wordp->r * 100, 0, 0);
+			sink->f_set_output_to_rgb(sink, wordclock_special_sinkcommand_intensity_green, wordp->g * 100, 0, 0);
+			sink->f_set_output_to_rgb(sink, wordclock_special_sinkcommand_intensity_blue, wordp->b * 100, 0, 0);
+			processor->first_run = 0;
+		}
+
 		time(&ttime);
 		atime = localtime(&ttime);
 
@@ -258,8 +266,11 @@ static int wordclock_word_processor_update_sink(struct wordclock_processor_compo
 		{
 			for (j = tleds[wordp->lvals[i]][0]; j <= tleds[wordp->lvals[i]][1] && j < sink->f_num_outputs(sink); j++)
 			{
-				sink->f_set_output_to_rgb(sink, -1 - j, (int) (wordp->r * 2.55), (int) (wordp->g * 2.55),
+/*
+			sink->f_set_output_to_rgb(sink, -1 - j, (int) (wordp->r * 2.55), (int) (wordp->g * 2.55),
 						(int) (wordp->b * 2.55));
+*/
+				sink->f_set_output_to_rgb(sink, -1 - j, 255, 255, 255);
 			}
 			sprintf(tstr + strlen(tstr), "%s ", twords[wordp->lvals[i]]);
 		}
@@ -443,9 +454,12 @@ static void wordclock_word_processor_print_configuration(struct wordclock_proces
 {
 	struct wordclock_word_processor* wordp = (struct wordclock_word_processor*) component->priv;
 
-	wordclock_log(wordclock_log_info, "\tmode	:  %d\n", wordp->mode);
-	wordclock_log(wordclock_log_info, "\tprecise:  %d\n", wordp->precise);
-	wordclock_log(wordclock_log_info, "\ttrailer:  %d\n", wordp->trailer);
+	wordclock_log(wordclock_log_info, "\tmode	        :  %d\n", wordp->mode);
+	wordclock_log(wordclock_log_info, "\tprecise        :  %d\n", wordp->precise);
+	wordclock_log(wordclock_log_info, "\ttrailer        :  %d\n", wordp->trailer);
+	wordclock_log(wordclock_log_info, "\tintensity-red  :  %d\n", wordp->r);
+	wordclock_log(wordclock_log_info, "\tintensity-green:  %d\n", wordp->g);
+	wordclock_log(wordclock_log_info, "\tintensity-blue :  %d\n", wordp->b);
 }
 
 static void wordclock_word_processor_free(struct wordclock_processor_component* component)
