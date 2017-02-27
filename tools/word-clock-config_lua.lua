@@ -17,9 +17,6 @@ conf["brightness"]=100
 conf["intensity-red"]=100
 conf["intensity-green"]=100
 conf["intensity-blue"]=100
-conf["gamma-red"]=1.55
-conf["gamma-green"]=1.6
-conf["gamma-blue"]=1.5
 conf["sensitivity"]=100
 conf["linear"]="aus"
 conf["falloff"]="ein"
@@ -51,9 +48,6 @@ function read_config(info)
 	conf["intensity-red"] = ask_config("intensity-red", 100)
 	conf["intensity-green"] = ask_config("intensity-green", 100)
 	conf["intensity-blue"] = ask_config("intensity-blue", 100)
-	conf["gamma-red"] = ask_config("gamma-red", 1.55)
-	conf["gamma-green"] = ask_config("gamma-green", 1.6)
-	conf["gamma-blue"] = ask_config("gamma-blue", 1.5)
 	conf["sensitivity"] = ask_config("sensitivity", 100)
 	smoth_ges = ask_config("smoothing", 7)
 	sm = smoth_ges
@@ -215,10 +209,6 @@ function color_menu()
 	l:addItem{type="stringinput", action="set_var", id="intensity-red", value=conf["intensity-red"],  valid_chars="0123456789", size=3, name="Intensität Rot in %", icon="rot", directkey=RC["red"]}
 	l:addItem{type="stringinput", action="set_var", id="intensity-green", value=conf["intensity-green"],  valid_chars="0123456789", size=3, name="Intensität Grün in %", icon="gruen", directkey=RC["green"]}
 	l:addItem{type="stringinput", action="set_var", id="intensity-blue", value=conf["intensity-blue"],  valid_chars="0123456789", size=3, name="Intensität Blau in %", icon="gelb", directkey=RC["yellow"]}
-	l:addItem{type="separatorline"}
-	l:addItem{type="stringinput", action="set_var", id="gamma-red", value=conf["gamma-red"],  valid_chars="0123456789.", size=4, name="Gammawert Rot", icon="3", directkey=RC["3"]}
-	l:addItem{type="stringinput", action="set_var", id="gamma-green", value=conf["gamma-green"],  valid_chars="0123456789.",size=4, name="Gammawert Grün", icon="4", directkey=RC["4"]}
-	l:addItem{type="stringinput", action="set_var", id="gamma-blue", value=conf["gamma-blue"], valid_chars="0123456789.", size=4, name="Gammawert Blau", icon="5", directkey=RC["5"]}
 	l:exec()
 end
 
