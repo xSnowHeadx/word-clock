@@ -11,15 +11,16 @@ Neben dem Grundgerüst von [Georg Kaindl](https://github.com/gkaindl/ambi-tv) und
 
 ## Hardware Setup
 
-Für den Aufbau des eigenständigen Ambilights werden folgende Komponenten benötigt:
+Für den Aufbau der Word-Clock werden folgende Komponenten benötigt:
 
 - Raspberry Pi (beliebige Version mit aktuellem [Raspbian-Image](http://downloads.raspberrypi.org/raspbian_latest)) mit [Kühlkörpern](http://www.amazon.de/gp/product/B00BB8ZB4U)
 - [WS2811 RGB LED Strip](http://www.ebay.de/itm/WS2812B-LED-Stripe-4m-RGB-60-LEDs-m-Klebestreifen-WS2811-WS2812-/251901768682?pt=LH_DefaultDomain_77&hash=item3aa683f3ea): Die Gehäuseteile sind für die Verwendung dieser LED ausgelegt. Man benötigt einen Pegelwandler von den 3,3V des Raspi auf die 5V der LED. 
-- alternativ [LPD8806 RGB LED Strip](http://www.watterott.com/de/Digital-Addressable-RGB-LED): Dann muß aber ein eigenes Gehäuse verwendet werden.
+- alternativ [LPD8806 RGB LED Strip](http://www.watterott.com/de/Digital-Addressable-RGB-LED), APA10x bzw. WS280x: Dann muß aber ein eigenes Gehäuse verwendet werden.
 - [Audio-Grabber](https://www.amazon.de/dp/B01LW8CMN4/ref=cm_sw_em_r_mt_dp_OKRSybBAA919M): Nur erforderlich, wenn man die Audiofunktionen nutzen möchte.
 - 1 [5V-Netzteil](http://www.amazon.de/gp/product/B004S7U4IO)
 - Tipp-Taster: Für diejenigen, die die Umschaltung nicht über das Web-Interface vornehmen.
 - diverse Kabel, Lötwerkzeug
+- die 3D-gedruckten Gehäuseteile
 
 Hardwareaufbau:
 
@@ -128,9 +129,8 @@ Im Moment unterstützt word-clock folgende Komponententypen mit ihren Einstellung
 
 - `name`: Der Instanzenname des Prozessors, unter welchem er mit den eingestellten Parametern in den Programmen verwendet werden kann.  
 - `atype`: Legt die Art und Weise der Verarbeitung der Audiodaten fest.
-  * `0` bedeutet "Audio-Spektrum". Das FFT-Ergebnis wird als Farbband um den Bildschirm herum abgebildet. Die tiefen Frequenzen (rot) liegen dabei unten in der Mitte und laufen über das gesamte Farbband um den Bildschirm herum bis oben zu den höchsten Frequenzen (weiß)
-  * `1` bedeutet "Audio-Mittelwert". Auch hier wird das Spektrum zunächst auf das Farbspektrum abgebildet. Es wird aber kein Farbband ausgegeben sondern der sich aus allen berechneten Farben ergebende Mittelwert wird auf allen LED gleich ausgegeben. Das ergibt einen nicht so unruhigen Effekt wie das Spektrum.
-- `levelcolor`: Bestimmt die Farbe des Leuchtbalkens im Modus 2 im hexadezimalen Format RRGGBB (FF0000 ist rot, 00FF00 grün, FFFF00 gelb usw.). Bei einem Wert von 000000 wird statt der vorgegebenen Farbe der Farbwert, welcher auch beim Average-Modus berechnet wurde, verwendet. Dieser wird allerdings auf 100% Helligkeit normiert, da sich hier die Helligkeit aus der Länge des Leuchtbalkens ergibt. In den Modi 0 und 1 wird dieser Wert zwar nicht verwendet, muß aber angegeben werden (kann 000000 sein).
+  * `0` bedeutet "Audio-Spektrum". Das FFT-Ergebnis wird in Form von 11 senkrechten Balken dargestellt. Die tiefen Frequenzen liegen dabei links. Die Balkenfarbe ändert sich von unten nach oben über grün und gelb zu rot.
+  * `1` bedeutet "Audio-Mittelwert". Auch hier wird das Audio-Spektrum zunächst als Farbspektrum berechnet. Der sich aus allen berechneten Farben ergebende Mittelwert wird dan auf allen LED gleich ausgegeben. 
 - `sensitivity`: Legt die prozentuale Verstärkung des Audiosignals vor der Verarbeitung fest. Damit kann das Ergebnis an kleinere oder stärkere Eingangspegel angepaßt werden. Werte zwischen 0 und 1000 sind möglich. 100 entspricht 1:1.
 - `smoothing`: Sorgt für eine Glättung des FFT-Ergebnisses um den optischen Effekt zu beruhigen und ein Flackern zu vermeiden. Es stehen drei Glättungsfilter zur Auswahl:
   * `1` bedeutet "Falloff-Filter", welches das Fallen des zugehörigen Pegels einer Gravitationssimulation entsprechend verzögert. Zunächst fällt der Pegel ohne weiteres Signal langsam, dann immer schneller. 
@@ -174,7 +174,7 @@ Aus dieser Datei kann man Anzahl, Anordnung und Namen der implementierten Progra
 *Modus setzen:*  
 `http://raspi:port?mode=n`
 
-Welche Modusnummer welches Programm aufruft und wieviele Modi es gibt, hängt von den Einträgen in der Config-Datei ab. Alle Werte, die größer als der maximal mögliche Modus sind schalten das Ambilight aus. Die Zählung beginnt dabei bei "0" für das erste Programm.
+Welche Modusnummer welches Programm aufruft und wieviele Modi es gibt, hängt von den Einträgen in der Config-Datei ab. Alle Werte, die größer als der maximal mögliche Modus sind schalten das Display aus. Die Zählung beginnt dabei bei "0" für das erste Programm.
 
 *Gesamthelligkeit setzen (0...100%):*  
 `http://raspi:port?brightness=nnn`
@@ -183,17 +183,6 @@ Welche Modusnummer welches Programm aufruft und wieviele Modi es gibt, hängt von
 `http://raspi:port?intensity-color=nnn`
 
 Nicht vergessen: statt "color" die Farben "red", "green" oder "blue" einsetzen.
-
-
-*Audioempfindlichkeit setzen (0...1000%):*  
-`http://raspi:port?sensitivity=nnn`
-
-*Spektrum-Filter setzen (0 - 7):*  
-`http://raspi:port?smoothing=n`
-
-*Linear-Modus setzen (0, 1):*  
-`http://raspi:port?linear=n`
-
 
 ## Tools
 
