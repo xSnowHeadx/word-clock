@@ -46,9 +46,9 @@ enum
 #define DEFAULT_SENSITIVITY 	500
 #define DEFAULT_SMOOTHING		(SMOOTH_FALLOFF | SMOOTH_AVERAGE | SMOOTH_INTEGRAL)
 #define DEFAULT_TYPE			1
-#define BANDS					46
-#define BANDOFFS				2
-#define MAXBANDS				(BANDS + 2*BANDOFFS)
+#define BANDS					(NUM_COLS * 4 + 4)
+//#define BANDOFFS				2
+//#define MAXBANDS				(BANDS + 2*BANDOFFS)
 #define MAXVAL					255
 #define MSIZE					1024
 #define COLORS					10
@@ -76,22 +76,22 @@ static const COLSTRUCT colors =
 { 0x00, 0x00, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x7F, 0xFF, 0x00 },
 { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00 } };
 
-float fc[MAXBANDS + 1];
-float fr[MAXBANDS + 1];
-int lcf[MAXBANDS + 1], hcf[MAXBANDS + 1];
-int f[MAXBANDS + 1];
-int fmem[MAXBANDS + 1];
-int flast[MAXBANDS + 1];
-int flastd[MAXBANDS + 1];
-float peak[MAXBANDS + 2];
+float fc[BANDS + 1];
+float fr[BANDS + 1];
+int lcf[BANDS + 1], hcf[BANDS + 1];
+int f[BANDS + 1];
+int fmem[BANDS + 1];
+int flast[BANDS + 1];
+int flastd[BANDS + 1];
+float peak[BANDS + 2];
 int y[SAMPLES / 2 + 1];
 double in[2 * (SAMPLES / 2 + 1)];
 fftw_complex out[SAMPLES / 2 + 1][2];
 fftw_plan p;
-int fall[MAXBANDS];
+int fall[BANDS];
 float spec[NUM_COLS];
-float fpeak[MAXBANDS + 1];
-float k[MAXBANDS];
+float fpeak[BANDS + 1];
+float k[BANDS];
 float g;
 int framerate = 10;
 uint64_t timertick;
@@ -122,7 +122,7 @@ uint64_t GetTimeStamp(void)
 static int wordclock_audio_processor_handle_frame(struct wordclock_processor_component* component, void* frame, int samples,
 		int rate, int exval, int cmd)
 {
-	int i, j, o, ret = -1;
+	int i, o, ret = -1;
 	float temp, stemp[NUM_COLS];
 
 	struct wordclock_audio_processor_priv* audio = (struct wordclock_audio_processor_priv*) component->priv;
@@ -192,7 +192,7 @@ static int wordclock_audio_processor_handle_frame(struct wordclock_processor_com
 		fftw_execute(p);
 
 		// process: separate frequency bands
-		for (o = 0; o < MAXBANDS; o++)
+		for (o = 0; o < BANDS; o++)
 		{
 			peak[o] = 0;
 
@@ -207,17 +207,17 @@ static int wordclock_audio_processor_handle_frame(struct wordclock_processor_com
 			if (temp > rate * 8)
 				temp = rate * 8; //just in case
 			f[o] = temp;
-			for(j = 0; j < BANDOFFS; j++)
+/*			for(j = 0; j < BANDOFFS; j++)
 				peak[BANDOFFS] += peak[j];
 			for(j = 0; j < BANDOFFS + 2; j++)
 				peak[j] = peak[BANDOFFS];
-		}
+*/		}
 		// process [smoothing]
 		if (audio->smoothing & SMOOTH_FALLOFF)
 		{
 
 			// process [smoothing]: falloff
-			for (o = BANDOFFS; o < (MAXBANDS - BANDOFFS); o++)
+			for (o = 0; o < BANDS; o++)
 			{
 				temp = f[o];
 
@@ -240,8 +240,8 @@ static int wordclock_audio_processor_handle_frame(struct wordclock_processor_com
 		{
 			// process [smoothing]: monstercat-style "average"
 			int z, m_y;
-			float m_o = 64 / MAXBANDS;
-			for (z = BANDOFFS; z < (MAXBANDS - BANDOFFS); z++)
+			float m_o = 64 / BANDS;
+			for (z = 0; z < BANDS; z++)
 			{
 				f[z] = f[z] * sm / smooth[(int) floor(z * m_o)];
 				if (f[z] < 0.125)
@@ -250,7 +250,7 @@ static int wordclock_audio_processor_handle_frame(struct wordclock_processor_com
 				{
 					f[m_y] = max(f[z] / pow(2, z - m_y), f[m_y]);
 				}
-				for (m_y = z + 1; m_y < MAXBANDS; m_y++)
+				for (m_y = z + 1; m_y < BANDS; m_y++)
 				{
 					f[m_y] = max(f[z] / pow(2, m_y - z), f[m_y]);
 				}
@@ -259,7 +259,7 @@ static int wordclock_audio_processor_handle_frame(struct wordclock_processor_com
 		if (audio->smoothing & SMOOTH_INTEGRAL)
 		{
 			// process [smoothing]: integral
-			for (o = BANDOFFS; o < (MAXBANDS - BANDOFFS); o++)
+			for (o = 0; o < BANDS; o++)
 			{
 				fmem[o] = fmem[o] * 0.55 + f[o];
 				f[o] = fmem[o];
@@ -269,10 +269,11 @@ static int wordclock_audio_processor_handle_frame(struct wordclock_processor_com
 
 			}
 		}
+	
 		memset(stemp, 0, sizeof(stemp));
-		for (o = BANDOFFS; o < (MAXBANDS - BANDOFFS); o++)
+		for (o = 0; o < (BANDS - 4); o++)
 		{
-			stemp[o >> 2] += f[o];
+			stemp[o >> 2] = stemp[o >> 2] + f[o + 4];
 		}
 		for(o = 0; o < NUM_COLS; o++)
 			spec[o] = (spec[o] * 0.95) + (stemp[o] * 0.0125);
@@ -318,7 +319,7 @@ static int wordclock_audio_processor_update_sink(struct wordclock_processor_comp
 		{
 			for (i = 0; i < BANDS; i++)				// calculate average level
 			{
-				dx = f[i + BANDOFFS] / 512.0;
+				dx = f[i] / 512.0;
 				if (dx > 1.0)
 					dx = 1.0;
 				else if (audio->linear)
@@ -330,7 +331,7 @@ static int wordclock_audio_processor_update_sink(struct wordclock_processor_comp
 			if ((audio->avgcolor) || (audio->type == ATYPE_AVERAGE))
 			{
 
-				for (i = BANDOFFS; i < (MAXBANDS - BANDOFFS); i++)			// calculate average color
+				for (i = 0; i < BANDS; i++)			// calculate average color
 				{
 					csize = (double) (COLORS) / (double) (BANDS);
 					cpos2 = modf((double) i * csize, &fcpos1);
@@ -397,7 +398,7 @@ static int wordclock_audio_processor_update_sink(struct wordclock_processor_comp
 				break;
 
 			case ATYPE_SPECTRUM:
-				tx = (double) spec[NUM_COLS - x - 1] / 512.0;
+				tx = (double) spec[x] / 512.0;
 				if (tx > 1.0)
 					tx = 1.0;
 				if (audio->linear)
@@ -442,7 +443,6 @@ static int wordclock_audio_processor_configure(struct wordclock_audio_processor_
 	{ "sensitivity", required_argument, 0, 's' },
 	{ "smoothing", required_argument, 0, 'S' },
 	{ "linear", required_argument, 0, 'e' },
-	{ "levelcolor", required_argument, 0, 'l' },
 	{ NULL, 0, 0, 0 } };
 
 	optind = 0;
@@ -586,7 +586,6 @@ static void wordclock_audio_processor_print_configuration(struct wordclock_proce
 	wordclock_log(wordclock_log_info, "\ttype       : %d\n"
 			"\tsensitivity:  %d\n"
 			"\tsmoothing  : %d\n"
-			"\tlevelcolor : %02X%02X%02X\n"
 			"\tlinear     : %d\n", audio->type, audio->sensitivity, audio->smoothing, audio->lcolor.r, audio->lcolor.g,
 			audio->lcolor.b, audio->linear);
 }
@@ -614,15 +613,15 @@ wordclock_audio_processor_create(const char* name, int argc, char** argv)
 		priv->sensitivity = DEFAULT_SENSITIVITY;
 		priv->smoothing = DEFAULT_SMOOTHING;
 		priv->type = DEFAULT_TYPE;
-		priv->linear = 1;
+		priv->linear = 0;
 
 		// process [smoothing]: calculate gravity
 		g = ((float) MAXVAL / 400) * pow((60 / (float) framerate), 2.5);
 
 		// process: calculate cutoff frequencies
-		for (n = 0; n < MAXBANDS + 1; n++)
+		for (n = 0; n < BANDS + 1; n++)
 		{
-			fc[n] = 20000 * pow(10, -2.37 + ((((float) n + 1) / ((float) MAXBANDS + 1)) * 2.37)); //decided to cut it at 20k, little interesting to hear above
+			fc[n] = 20000 * pow(10, -2.37 + ((((float) n + 1) / ((float) BANDS + 1)) * 2.37)); //decided to cut it at 20k, little interesting to hear above
 			fr[n] = fc[n] / (priv->rate / 1); //remember nyquist!, pr my calculations this should be rate/2 and  nyquist freq in M/2 but testing shows it is not... or maybe the nq freq is in M/4
 			lcf[n] = fr[n] * (SAMPLES / 4); //lfc stores the lower cut frequency foo each band in the fft out buffer
 
@@ -636,7 +635,7 @@ wordclock_audio_processor_create(const char* name, int argc, char** argv)
 		}
 
 		// process: weigh signal to frequencies
-		for (n = 0; n < MAXBANDS; n++)
+		for (n = 0; n < BANDS; n++)
 			k[n] = pow(fc[n], 0.62) * ((float) MAXVAL / (SAMPLES * 3000)) * 8;
 
 		p = fftw_plan_dft_r2c_1d(SAMPLES, in, *out, FFTW_MEASURE); //planning to rock

@@ -25,6 +25,6 @@
 struct wordclock_source_component*
 wordclock_audio_grab_create(const char* name, int argc, char** argv);
 
-#define SAMPLES					2048
+#define SAMPLES					1024
 
 #endif // __WORDCLOCK_AUDIO_GRAB_SOURCE_H__

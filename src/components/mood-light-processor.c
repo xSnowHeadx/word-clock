@@ -70,63 +70,38 @@ static int wordclock_mood_light_processor_update_sink(struct wordclock_processor
 
 		switch(mood->mode)
 		{
-		case 0:
-		{
-			for (i = 0; i < n_out; i++)
+
+			case 0:
 			{
-				int x, y, r, g, b;
-				float f;
+				for (i = 0; i < n_out; i++)
+				{
+					int x, y, r, g, b;
+					float f;
 
-				ret = sink->f_map_output_to_point(sink, i, 1024, 1024, &x, &y);
+					ret = sink->f_map_output_to_point(sink, i, 1024, 1024, &x, &y);
 
-				f = CONSTRAIN((x / 1024.0 + y / 1024.0) / 2.0, 0.0, 1.0);
-				f = fmod(f + mood->offset, 1.0);
+					f = CONSTRAIN((x / 1024.0 + y / 1024.0) / 2.0, 0.0, 1.0);
+					f = fmod(f + mood->offset, 1.0);
 
-				wordclock_hsl_to_rgb(255 * f, 255, 128, &r, &g, &b);
+					wordclock_hsl_to_rgb(255 * f, 255, 128, &r, &g, &b);
 
-				sink->f_set_output_to_rgb(sink, i, r, g, b);
+					sink->f_set_output_to_rgb(sink, i, r, g, b);
+				}
 			}
-		}
-		break;
+			break;
 
-		case 1:
-		{
-			for (i = 0; i < n_out; i++)
+			case 1:
 			{
-				int x, y, r, g, b;
-				float f;
-
-				ret = sink->f_map_output_to_point(sink, i, 1600, 900, &x, &y);
-				if(y < 0.0001)
-					f = CONSTRAIN(x / 5000.0, 0.0, 1.0);
-				else if(x > 1599.9999)
-					f = CONSTRAIN((1600.0 + y) / 5000.0, 0.0, 1.0);
-				else if(y > 899.9999)
-					f = CONSTRAIN((4100.0 - x) / 5000.0, 0.0, 1.0);
-				else //(x < 0.0001)
-					f = CONSTRAIN((5000.0 - y) / 5000.0, 0.0, 1.0);
-
-				f = fmod(f + mood->offset, 1.0);
-
-				wordclock_hsl_to_rgb(255 * f, 255, 128, &r, &g, &b);
-
-				sink->f_set_output_to_rgb(sink, i, r, g, b);
+				for (i = 0; i < n_out; i++)
+				{
+					int r, g, b;
+					wordclock_hsl_to_rgb(255 * mood->offset, 255, 128, &r, &g, &b);
+					sink->f_set_output_to_rgb(sink, i, r, g, b);
+				}
 			}
-		}
-		break;
+			break;
 
-		case 2:
-		{
-			for (i = 0; i < n_out; i++)
-			{
-				int r, g, b;
-				wordclock_hsl_to_rgb(255 * mood->offset, 255, 128, &r, &g, &b);
-				sink->f_set_output_to_rgb(sink, i, r, g, b);
-			}
 		}
-		break;
-
-}
 	}
 	else
 		ret = -1;
