@@ -273,10 +273,10 @@ static int wordclock_audio_processor_handle_frame(struct wordclock_processor_com
 		memset(stemp, 0, sizeof(stemp));
 		for (o = 0; o < (BANDS - 4); o++)
 		{
-			stemp[o >> 2] = stemp[o >> 2] + f[o + 4];
+			stemp[o >> 2] += f[o + 4];
 		}
 		for(o = 0; o < NUM_COLS; o++)
-			spec[o] = (spec[o] * 0.95) + (stemp[o] * 0.0125);
+			spec[o] = (spec[o] * 0.95) + (stemp[o] * (0.04 - (0.0375 / NUM_COLS) * o));
 	}
 	return 0;
 }
@@ -308,9 +308,7 @@ static int wordclock_audio_processor_update_sink(struct wordclock_processor_comp
 			sink->f_set_output_to_rgb(sink, wordclock_special_sinkcommand_intensity_red, 10000, 0, 0);
 			sink->f_set_output_to_rgb(sink, wordclock_special_sinkcommand_intensity_green, 10000, 0, 0);
 			sink->f_set_output_to_rgb(sink, wordclock_special_sinkcommand_intensity_blue, 10000, 0, 0);
-			processor->first_run = 0;
 		}
-
 		n_out = sink->f_num_outputs(sink);
 
 		dr = dg = db = 0.0;
@@ -356,9 +354,12 @@ static int wordclock_audio_processor_update_sink(struct wordclock_processor_comp
 						dx = 255;
 					db += dx;
 				}
-				dr /= BANDS;
-				dg /= (3 * BANDS) / 2;
-				db /= (3 * BANDS) / 2;
+				dx = dr + dg + db;
+				if(dx == 0.0)
+					dx = 1.0;
+				dr *= pow(dr / dx, 2.5);
+				dg *= pow(dg / dx, 4);
+				db *= pow(db / dx, 4);
 				dx = 1.0;
 				audio->lcolor.r = (int) (dr * dx);
 				audio->lcolor.g = (int) (dg * dx);
@@ -380,9 +381,19 @@ static int wordclock_audio_processor_update_sink(struct wordclock_processor_comp
 				}
 			}
 		}
-		rt = 0.99 * rt + 0.01 * audio->lcolor.r;
-		gt = 0.99 * gt + 0.01 * audio->lcolor.g;
-		bt = 0.99 * bt + 0.01 * audio->lcolor.b;
+		if(processor->first_run)
+		{
+			rt = audio->lcolor.r;
+			gt = audio->lcolor.g;
+			bt = audio->lcolor.b;
+			processor->first_run = 0;
+		}
+		else
+		{
+			rt = 0.99 * rt + 0.01 * audio->lcolor.r;
+			gt = 0.99 * gt + 0.01 * audio->lcolor.g;
+			bt = 0.99 * bt + 0.01 * audio->lcolor.b;
+		}
 
 		for (i = 0; i < n_out; i++)
 		{
